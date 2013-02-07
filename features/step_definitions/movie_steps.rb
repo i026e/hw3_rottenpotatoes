@@ -4,7 +4,7 @@ Given /the following movies exist/ do |movies_table|
   movies_table.hashes.each do |movie|	
     # each returned element will be a hash whose key is the table header.
     # you should arrange to add that movie to the database here.
-	Movie.create(:title=>movie["title"], :rating=>movie["rating"], :release_date=>movie["rating"])
+	Movie.create(:title => movie["title"], :rating => movie["rating"], :release_date => movie["release_date"])
     
   end
   
@@ -50,7 +50,16 @@ end
 Then /I should see "(.*)" before "(.*)"/ do |e1, e2|
   #  ensure that that e1 occurs before e2.
   #  page.body is the entire content of the page as a string.
-  flunk "Unimplemented"
+	table = page.all('#movies tbody tr td[1]').map(&:text)
+    #puts table
+	table.index(e1).should < table.index(e2)
+	
+end
+
+Then /order should be/ do |order|
+	correct = order.hashes.collect {|x| x['title']}
+	actual = page.all('#movies tbody tr td[1]').map(&:text)
+	actual.should == correct
 end
 
 # Make it easier to express checking or unchecking several boxes at once
