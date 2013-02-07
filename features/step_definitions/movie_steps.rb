@@ -13,18 +13,26 @@ end
 
 Then /^I should see: (.*)$/ do |rating_list|
 	ratings = rating_list.split(",").each {|t| t.strip!}
+	movies = Movie.find_all_by_rating(ratings).map {|t| t['title']} 
 
-	actual = page.all('#movies tbody tr td[2]').collect(&:text) 
-    actual.map do |cell|
-		ratings.should include(cell)
+
+	actual = page.all('#movies tbody tr td[1]').collect(&:text) 
+	actual.length.should == movies.length
+	
+	
+    actual.map do |m|
+		movies.should include(m)
 	end
 end
 
 Then /^I should not see: (.*)$/ do |rating_list|
 	ratings = rating_list.split(",").each {|t| t.strip!}
-	actual = page.all('#movies tbody tr td[2]').collect(&:text) 
-	ratings.each do |rating|
-		actual.should_not include(rating)
+	forb_movies = Movie.find_all_by_rating(ratings).map {|t| t['title']}
+
+	actual = page.all('#movies tbody tr td[1]').collect(&:text) 
+	
+	actual.map do |m|
+		forb_movies.should_not include(m)
 	end
 
 end
@@ -38,8 +46,13 @@ Then /the following checkboxes should be selected: (.*)/ do |rating_list|
 end
 
 Then /I should see all of the movies/ do
-	table = page.all('#movies tbody tr')
-	table.length.should == Movie.count
+	actual_table = page.all('#movies tbody tr td[1]').collect(&:text)
+	movies = Movie.find(:all).map {|t| t['title']}
+
+	actual_table.length.should == movies.length
+	movies.map do |m|
+		actual_table.should include(m)
+	end
 end
 
 

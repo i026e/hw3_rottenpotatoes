@@ -36,11 +36,17 @@ Scenario: restrict to movies with 'PG' or 'R' ratings
 
 
 Scenario: no ratings selected
-	Given I uncheck the following ratings: G, PG-13, PG, R, NC-17
+	Given I check the following ratings: G, PG-13
+	And I press "Refresh"
+	And I uncheck the following ratings: G, PG-13, PG, R, NC-17
 	When I press "Refresh"
-	Then the following checkboxes should be selected: G, PG-13, PG, R, NC-17
+	Then the following checkboxes should be selected: G, PG-13
+	And I should see: G, PG-13
+	And I should not see: PG, R, NC-17
+
 
 Scenario: all ratings selected
 	Given I check the following ratings: G, PG-13, PG, R, NC-17
 	When I press "Refresh"
 	Then I should see all of the movies
+	And the following checkboxes should be selected: G, PG-13, PG, R, NC-17
