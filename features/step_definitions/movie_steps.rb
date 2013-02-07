@@ -10,6 +10,40 @@ Given /the following movies exist/ do |movies_table|
   
 end
 
+
+Then /^I should see: (.*)$/ do |rating_list|
+	ratings = rating_list.split(",").each {|t| t.strip!}
+
+	actual = page.all('#movies tbody tr td[2]').collect(&:text) 
+    actual.map do |cell|
+		ratings.should include(cell)
+	end
+end
+
+Then /^I should not see: (.*)$/ do |rating_list|
+	ratings = rating_list.split(",").each {|t| t.strip!}
+	actual = page.all('#movies tbody tr td[2]').collect(&:text) 
+	ratings.each do |rating|
+		actual.should_not include(rating)
+	end
+
+end
+
+Then /the following checkboxes should be selected: (.*)/ do |rating_list|
+	checkboxes = rating_list.split(",").each {|t| t.strip!}
+	checkboxes.each do |chbox|
+		field_checked = find_field('ratings_'+chbox)['checked']
+		field_checked.should be_true
+	end
+end
+
+Then /I should see all of the movies/ do
+	table = page.all('#movies tbody tr')
+	table.length.should == Movie.count
+end
+
+
+
 # Make sure that one string (regexp) occurs before or after another one
 #   on the same page
 
@@ -27,4 +61,12 @@ When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
+	ratings = rating_list.split(",").each {|t| t.strip!}
+	ratings.each do |rating|
+		if uncheck.nil?
+			check('ratings_'+rating)
+		else
+			uncheck('ratings_'+rating)
+		end
+	end
 end
